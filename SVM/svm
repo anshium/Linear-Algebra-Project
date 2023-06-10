@@ -11,7 +11,7 @@ class Support_Vector_Machine:
         self.visualisation = visualisation
         # The segment in 1 would be red and that
         # in -1 would be blue
-        self.colours = {1: 'r', -1: 'b'}
+        self.colors = {1: 'r', -1: 'b'}
         if(self.visualisation):
             self.fig = plt.figure()
             self.ax = self.fig.add_subplot(1, 1, 1)
@@ -100,6 +100,47 @@ class Support_Vector_Machine:
     def predict(self, features):
         # sign( x.w + b  )
         classification = np.sign(np.dot(np.array(features), self.w) + self.b)
+
+        if classification != 0 and self.visualisation:
+            self.ax.scatter(features[0], features[1], s = 200, marker='*', c = self.colors[classification])
+        
+        return classification
+
+    def visualize(self):
+        [[self.ax.scatter(x[0], x[1], s = 100, color = self.colors[i]) for x in data_dict[i]] for i in data_dict]
+
+        # hyperplane = x.w + b
+        # gives hyperplane values where v is the value we are seeking
+        # v = x.w + b
+        # positive support vector, psv = 1
+        # nsv = -1
+        # dec = 0 (decision boundary)
+        def hyperplane(x, w, b, v):
+            return (-w[0] * x - b + v) / w[1]
+
+        datarange = (self.min_feature_value * 0.9, self.max_feature_value * 1.1)
+        hyp_x_min = datarange[0]
+        hyp_x_max = datarange[1]
+
+        # (w.x + b) = 1
+        # positive support vector
+        psv1 = hyperplane(hyp_x_min, self.w, self.b, 1) # scalar value
+        psv2 = hyperplane(hyp_x_max, self.w, self.b, 1) # scalar value
+        self.ax.plot([hyp_x_min, hyp_x_max], [psv1, psv2], 'k') # k is black
+
+        # (w.x + b) = -1
+        # negative support vector
+        nsv1 = hyperplane(hyp_x_min, self.w, self.b, -1) # scalar value
+        nsv2 = hyperplane(hyp_x_max, self.w, self.b, -1) # scalar value
+        self.ax.plot([hyp_x_min, hyp_x_max], [nsv1, nsv2], 'k')
+
+        # (w.x + b) = 0
+        # decision boundary
+        db1 = hyperplane(hyp_x_min, self.w, self.b, 0) # scalar value
+        db2 = hyperplane(hyp_x_max, self.w, self.b, 0) # scalar value
+        self.ax.plot([hyp_x_min, hyp_x_max], [db1, db2], 'y--')
+
+        plt.show()
 # data dict would be the sample data where 1 and -1
 # denote the classes and they corresponding to a
 # numpy array that is a list of lists
@@ -111,3 +152,7 @@ data_dict = {-1: np.array([[1, 7],
                           [6, -1],
                           [7, 3]])
             }
+
+svm = Support_Vector_Machine()
+svm.fit(data = data_dict)
+svm.visualize()
